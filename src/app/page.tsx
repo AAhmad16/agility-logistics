@@ -6,6 +6,7 @@ import { submitQuoteRequest } from "./actions";
 import { QuoteCard } from "@/components/QuoteCard";
 import { TrackBox } from "@/components/TrackBox";
 import { RouteMap } from "@/components/RouteMap";
+import { ChatWidget } from "@/components/ChatWidget";
 import { OnTheRoad } from "@/components/OnTheRoad";
 import { RoadScene } from "@/components/RoadScene";
 import { SiteNav } from "@/components/SiteNav";
@@ -190,6 +191,8 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ s
           </form>
         </div>
       </section>
+
+      <ChatWidget rates={services} hubs={locations} />
 
       <footer className="site">
         <div className="wrap"><span>Agility Logistics · Schaumburg, Illinois</span><span><DispatchLine /> Drivers: ask dispatch for an invite</span></div>
