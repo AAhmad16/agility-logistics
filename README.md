@@ -62,7 +62,7 @@ Open the site in Safari, go to `/driver`, tap Share, then **Add to Home Screen**
 - [ ] Add address search and geocoding (Mapbox or Google) so clients can save their own pickup and delivery addresses. Today the eight Chicago-area hubs in `locations` are used.
 - [ ] Replace the schematic map with a real map (`src/components/RouteMap.tsx` is the only file to change)
 - [ ] Add a custom domain, email sending (Resend or Supabase SMTP), and error monitoring
-- [ ] Review pricing in `service_rates` and the 62% driver payout in `book_shipment`
+- [ ] Review pricing in `service_rates` and the 45% driver payout in `book_shipment`
 
 ## Layout
 
