@@ -10,7 +10,7 @@ export default async function Earnings() {
   const session = await getSession();
   const supabase = await createClient();
   const { data } = await supabase.from("shipments").select(SHIPMENT_SELECT).eq("driver_id", session?.user.id ?? "").eq("status", "delivered").order("delivered_at", { ascending: false }).limit(100);
-  const list = (data ?? []) as Shipment[];
+  const list = (data ?? []) as unknown as Shipment[];
   const total = list.reduce((a, s) => a + s.driver_payout_cents, 0);
   return (
     <div className="pbody">

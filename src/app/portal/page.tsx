@@ -12,7 +12,7 @@ export default async function PortalHome() {
     supabase.from("shipments").select(SHIPMENT_SELECT).order("created_at", { ascending: false }).limit(100),
     supabase.from("invoices").select("amount_cents, status").eq("status", "open"),
   ]);
-  const ships = (data ?? []) as Shipment[];
+  const ships = (data ?? []) as unknown as Shipment[];
   const openBal = ((invs ?? []) as Pick<Invoice, "amount_cents">[]).reduce((a, i) => a + i.amount_cents, 0);
   const active = ships.filter((s) => ["pending", "assigned", "picked"].includes(s.status)).length;
   return (

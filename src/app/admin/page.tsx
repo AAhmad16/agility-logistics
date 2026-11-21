@@ -16,7 +16,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
     supabase.from("shipments").select(SHIPMENT_SELECT).order("created_at", { ascending: false }).limit(200),
     supabase.from("profiles").select("id, full_name").eq("role", "driver").order("full_name"),
   ]);
-  const ships = (data ?? []) as Shipment[];
+  const ships = (data ?? []) as unknown as Shipment[];
   const drivers = (drv ?? []) as Pick<Profile, "id" | "full_name">[];
   const count = (st: string) => ships.filter((s) => s.status === st).length;
   return (

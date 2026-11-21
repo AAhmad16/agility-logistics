@@ -4,6 +4,7 @@ import { logout } from "../actions";
 import { NavLink } from "@/components/NavLink";
 import { LogoMark } from "@/components/Logo";
 import { createClient } from "@/lib/supabase/server";
+import { DispatchLine } from "@/components/DispatchLine";
 
 export default async function PortalLayout({ children }: { children: React.ReactNode }) {
   const { profile } = await requireRole("client");
@@ -26,6 +27,7 @@ export default async function PortalLayout({ children }: { children: React.React
             <NavLink href="/portal/new">New shipment</NavLink>
             <NavLink href="/portal/invoices">Invoices</NavLink>
           </nav>
+          <DispatchLine className="dispatchline" />
           <form action={logout} style={{ marginTop: "auto" }}>
             <button className="btn ghost sm" style={{ color: "#C9D6E2", width: "100%" }}>Sign out</button>
           </form>

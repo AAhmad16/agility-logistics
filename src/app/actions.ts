@@ -85,9 +85,9 @@ export async function confirmPickup(formData: FormData) {
   redirect(`/driver/job/${id}`);
 }
 
-export async function completeDelivery(id: string, name: string, signature: string) {
+export async function completeDelivery(id: string, name: string, signature: string, photo: string) {
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc("complete_delivery", { p_id: id, p_name: name, p_signature: signature });
+  const { data, error } = await supabase.rpc("complete_delivery", { p_id: id, p_name: name, p_signature: signature, p_photo: photo });
   if (error) return { error: error.message };
   revalidatePath("/driver");
   return { invoice: data as string };

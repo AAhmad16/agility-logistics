@@ -6,19 +6,42 @@ import { completeDelivery } from "@/app/actions";
 import { money } from "@/lib/format";
 import { SignaturePad } from "./SignaturePad";
 
+// Shrinks a phone photo to a small JPEG so it uploads fast on cellular.
+async function shrinkPhoto(file: File): Promise<string> {
+  const bmp = await createImageBitmap(file);
+  const scale = Math.min(1, 1024 / Math.max(bmp.width, bmp.height));
+  const c = document.createElement("canvas");
+  c.width = Math.round(bmp.width * scale);
+  c.height = Math.round(bmp.height * scale);
+  c.getContext("2d")!.drawImage(bmp, 0, 0, c.width, c.height);
+  return c.toDataURL("image/jpeg", 0.7);
+}
+
 export function DeliveryForm({ id, recipientPlace, payoutCents }: { id: string; recipientPlace: string; payoutCents: number }) {
   const [name, setName] = useState("");
   const [sig, setSig] = useState<string | null>(null);
+  const [photo, setPhoto] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState<string | null>(null);
   const onSig = useCallback((s: string | null) => setSig(s), []);
 
+  async function onPhoto(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setError("");
+    try {
+      setPhoto(await shrinkPhoto(file));
+    } catch {
+      setError("That photo could not be read. Try taking it again.");
+    }
+  }
+
   async function submit() {
-    if (!sig) return;
+    if (!sig || !photo) return;
     setBusy(true);
     setError("");
-    const res = await completeDelivery(id, name, sig);
+    const res = await completeDelivery(id, name, sig, photo);
     setBusy(false);
     if ("error" in res && res.error) setError(res.error);
     else setDone(res.invoice ?? "");
@@ -43,6 +66,21 @@ export function DeliveryForm({ id, recipientPlace, payoutCents }: { id: string; 
   return (
     <div className="stack">
       <p className="hint">Delivering to {recipientPlace}</p>
+      <div>
+        <div className="lbl" style={{ marginBottom: 6 }}>Photo of the delivered package</div>
+        {photo ? (
+          <div className="photo">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={photo} alt="Delivered package" />
+            <button type="button" className="btn ghost sm" onClick={() => setPhoto(null)}>Retake</button>
+          </div>
+        ) : (
+          <label className="btn dark block photo-btn">
+            Take photo
+            <input type="file" accept="image/*" capture="environment" onChange={onPhoto} hidden />
+          </label>
+        )}
+      </div>
       <div className="field">
         <label htmlFor="pname">Recipient name</label>
         <input id="pname" value={name} onChange={(e) => setName(e.target.value)} placeholder="Full name" autoComplete="off" />
@@ -52,7 +90,7 @@ export function DeliveryForm({ id, recipientPlace, payoutCents }: { id: string; 
         <SignaturePad onChange={onSig} />
       </div>
       {error && <div className="alert err" role="alert">{error}</div>}
-      <button className="btn amber block" disabled={busy || !name.trim() || !sig} onClick={submit}>
+      <button className="btn amber block" disabled={busy || !name.trim() || !sig || !photo} onClick={submit}>
         {busy ? "Saving…" : "Complete delivery"}
       </button>
     </div>

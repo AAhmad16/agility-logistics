@@ -2,11 +2,12 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getSession, homeFor } from "@/lib/session";
 import type { Loc, Rate } from "@/lib/types";
-import { money } from "@/lib/format";
+import { LATE_CREDIT_PCT, money } from "@/lib/format";
 import { LogoMark } from "@/components/Logo";
 import { QuoteCard } from "@/components/QuoteCard";
 import { TrackBox } from "@/components/TrackBox";
 import { RouteMap } from "@/components/RouteMap";
+import { DispatchLine } from "@/components/DispatchLine";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -54,6 +55,7 @@ export default async function Home() {
           <div>
             <h1>When it has to be there today.</h1>
             <p className="sub">Our own drivers, a live map and one invoice. For parts, documents and specimens that cannot wait for tomorrow.</p>
+            <p className="guarantee"><b>On-time guarantee.</b> Late? {LATE_CREDIT_PCT}% comes off your invoice automatically. The price you see is the price you pay.</p>
             <div className="cta">
               <a className="btn amber" href="#quote">Price a shipment</a>
               <Link className="btn ghost" style={{ color: "#fff" }} href="/signup">Open a client account</Link>
@@ -69,6 +71,20 @@ export default async function Home() {
       </section>
 
       <TrackBox />
+
+      <section className="band" id="why" style={{ background: "#fff" }}>
+        <div className="wrap">
+          <h2 className="sec">Why shippers switch to Agility</h2>
+          <div className="why">
+            <div><h4>On-time guarantee</h4><p>Every booking has a promised delivery time. Miss it and {LATE_CREDIT_PCT}% comes off the invoice, with no claim form.</p></div>
+            <div><h4>The price you see is the price you pay</h4><p>Quotes are instant and firm. No sales call, no fuel surcharge added later.</p></div>
+            <div><h4>Our own drivers, by name</h4><p>You see your driver&apos;s name and vehicle before they arrive. No anonymous network.</p></div>
+            <div><h4>Proof you can see</h4><p>A photo of the delivered package, the recipient&apos;s signature and the time, on one page.</p></div>
+            <div><h4>Live link for the recipient</h4><p>Text a tracking link to whoever is waiting. They follow the driver on a map, no login.</p></div>
+            <div><h4>A real person on dispatch</h4><p>Call or text a dispatcher in Schaumburg who answers in minutes.{" "}<DispatchLine /></p></div>
+          </div>
+        </div>
+      </section>
 
       <section className="band" id="services">
         <div className="wrap">
@@ -99,7 +115,7 @@ export default async function Home() {
       </section>
 
       <footer className="site">
-        <div className="wrap"><span>Agility Logistics · Schaumburg, Illinois</span><span>Drivers: ask dispatch for an invite</span></div>
+        <div className="wrap"><span>Agility Logistics · Schaumburg, Illinois</span><span><DispatchLine /> Drivers: ask dispatch for an invite</span></div>
       </footer>
     </>
   );

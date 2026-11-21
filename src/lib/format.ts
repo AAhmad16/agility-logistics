@@ -34,3 +34,10 @@ export const etaText = (minutes: number) =>
 export function safeNext(next: string | null | undefined, fallback: string) {
   return next && next.startsWith("/") && !next.startsWith("//") ? next : fallback;
 }
+
+// Keep in sync with app_settings.late_credit_pct in the database (the database applies the credit).
+export const LATE_CREDIT_PCT = 25;
+
+// Optional dispatch phone shown on the site. Set NEXT_PUBLIC_DISPATCH_PHONE in Vercel.
+export const DISPATCH_PHONE = process.env.NEXT_PUBLIC_DISPATCH_PHONE?.trim() || "";
+export const phoneHref = (phone: string) => phone.replace(/[^\d+]/g, "");

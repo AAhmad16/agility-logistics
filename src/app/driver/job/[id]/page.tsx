@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getSession } from "@/lib/session";
 import { SHIPMENT_SELECT, type Shipment } from "@/lib/types";
-import { money, SERVICE_NAME, STATUS_LABEL } from "@/lib/format";
+import { fmtTime, money, SERVICE_NAME, STATUS_LABEL } from "@/lib/format";
 import { acceptJob, confirmPickup } from "../../../actions";
 import { RouteMap } from "@/components/RouteMap";
 import { DeliveryForm } from "@/components/DeliveryForm";
@@ -17,7 +17,7 @@ export default async function JobPage({ params, searchParams }: { params: Promis
   const supabase = await createClient();
   const { data } = await supabase.from("shipments").select(SHIPMENT_SELECT).eq("id", id).maybeSingle();
   if (!data) notFound();
-  const s = data as Shipment;
+  const s = data as unknown as Shipment;
   const mine = s.driver_id === session?.user.id;
   const live = mine && (s.status === "assigned" || s.status === "picked");
 
@@ -44,6 +44,7 @@ export default async function JobPage({ params, searchParams }: { params: Promis
       </div>
       <div className="ph-card">
         <dl className="kv">
+          {s.promised_at && (<><dt>Deliver by</dt><dd><b>{fmtTime(s.promised_at)}</b> (on-time guarantee)</dd></>)}
           <dt>Package</dt><dd>{s.weight_lb} lb</dd>
           <dt>Reference</dt><dd>{s.reference ?? "None"}</dd>
           {s.notes && (<><dt>Notes</dt><dd>{s.notes}</dd></>)}

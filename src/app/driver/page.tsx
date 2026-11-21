@@ -26,7 +26,7 @@ export default async function DriverJobs({ searchParams }: { searchParams: Promi
   const session = await getSession();
   const supabase = await createClient();
   const { data } = await supabase.from("shipments").select(SHIPMENT_SELECT).in("status", ["pending", "assigned", "picked", "delivered"]).order("created_at", { ascending: false }).limit(60);
-  const all = (data ?? []) as Shipment[];
+  const all = (data ?? []) as unknown as Shipment[];
   const mine = all.filter((s) => s.driver_id === session?.user.id);
   const active = mine.filter((s) => s.status === "assigned" || s.status === "picked");
   const open = all.filter((s) => s.status === "pending");
