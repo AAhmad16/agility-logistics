@@ -22,6 +22,7 @@ export function ShipmentFields({
   children?: (state: { valid: boolean; price: string; draft: Draft }) => React.ReactNode;
 }) {
   const [d, setD] = useState<Draft>(initial);
+  const [other, setOther] = useState(() => !/^(10|[1-9])$/.test(initial.weight));
   const { quote } = useQuote(d.service, d.pickup, d.dropoff, d.weight);
   const set = (patch: Partial<Draft>) => setD((prev) => ({ ...prev, ...patch }));
   const same = d.pickup === d.dropoff;
@@ -54,8 +55,25 @@ export function ShipmentFields({
         ))}
       </div>
       <div className="field">
-        <label htmlFor={`${idPrefix}-weight`}>Weight (lb)</label>
-        <input id={`${idPrefix}-weight`} name="weight" type="number" min={1} max={150} step="0.1" required value={d.weight} onChange={(e) => set({ weight: e.target.value })} />
+        <label htmlFor={`${idPrefix}-weight`}>Package weight</label>
+        <select
+          id={`${idPrefix}-weight`}
+          value={other ? "other" : d.weight}
+          onChange={(e) => {
+            if (e.target.value === "other") { setOther(true); if (!(Number(d.weight) > 0)) set({ weight: "11" }); }
+            else { setOther(false); set({ weight: e.target.value }); }
+          }}
+        >
+          {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
+            <option key={n} value={String(n)}>{n} lb{n === 10 ? " (standard box)" : ""}</option>
+          ))}
+          <option value="other">Heavier or other weight</option>
+        </select>
+        {other && (
+          <input aria-label="Weight in pounds" type="number" min={1} max={150} step="0.1" required value={d.weight} onChange={(e) => set({ weight: e.target.value })} style={{ marginTop: 8 }} />
+        )}
+        <input type="hidden" name="weight" value={d.weight} />
+        <small className="hint">Up to 150 lb. The price is the same for every weight up to 25 lb.</small>
       </div>
       {children?.({
         valid: !!quote && !same,
