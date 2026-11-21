@@ -1,23 +1,21 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { getSession, homeFor } from "@/lib/session";
 import type { Loc, Rate } from "@/lib/types";
 import { DISPATCH_PHONE, LATE_CREDIT_PCT, money, phoneHref } from "@/lib/format";
 import { submitQuoteRequest } from "./actions";
-import { LogoMark } from "@/components/Logo";
 import { QuoteCard } from "@/components/QuoteCard";
 import { TrackBox } from "@/components/TrackBox";
 import { RouteMap } from "@/components/RouteMap";
+import { SiteNav } from "@/components/SiteNav";
 import { DispatchLine } from "@/components/DispatchLine";
 import { CategoryIcon, ServiceArt, type CategoryKind } from "@/components/ServiceArt";
 
 export default async function Home({ searchParams }: { searchParams: Promise<{ sent?: string; qerror?: string }> }) {
   const sp = await searchParams;
   const supabase = await createClient();
-  const [{ data: hubs }, { data: rates }, session] = await Promise.all([
+  const [{ data: hubs }, { data: rates }] = await Promise.all([
     supabase.from("locations").select("*").eq("is_hub", true).order("name"),
     supabase.from("service_rates").select("*").order("base_cents"),
-    getSession(),
   ]);
   const locations = (hubs ?? []) as Loc[];
   const services = (rates ?? []) as Rate[];
@@ -48,27 +46,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ s
 
   return (
     <>
-      <header className="sitenav">
-        <div className="wrap nav">
-          <Link className="logo" href="/">
-            <LogoMark />
-            <span>Agility Logistics<small>Time-critical delivery</small></span>
-          </Link>
-          <div className="links">
-            <a className="lnk hide-s" href="#services">Services</a>
-            <a className="lnk" href="#track">Track</a>
-            <a className="lnk hide-s" href="#contact">Contact</a>
-            {session ? (
-              <Link className="btn amber sm" href={homeFor(session.profile.role)}>Open dashboard</Link>
-            ) : (
-              <>
-                <Link className="lnk" href="/login">Sign in</Link>
-                <Link className="btn amber sm" href="/signup">Create account</Link>
-              </>
-            )}
-          </div>
-        </div>
-      </header>
+      <SiteNav />
 
       <section className="hero">
         <div className="wrap grid">
