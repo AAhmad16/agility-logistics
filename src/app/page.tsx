@@ -50,6 +50,8 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ s
     <>
       <SiteNav />
 
+      <OnTheRoad />
+
       <section className="hero">
         <div className="wrap grid">
           <div>
@@ -96,8 +98,6 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ s
           </div>
         </div>
       </section>
-
-      <OnTheRoad />
 
       <section className="band" id="deliver" style={{ background: "#fff" }}>
         <div className="wrap">

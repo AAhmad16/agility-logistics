@@ -12,7 +12,7 @@ export async function SiteNav() {
           <span>Agility Logistics<small>Time-critical delivery</small></span>
         </Link>
         <div className="links">
-          <Link className="lnk" href="/">Home</Link>
+          <Link className="lnk hide-s" href="/">Home</Link>
           <Link className="lnk hide-s" href="/#services">Services</Link>
           <Link className="lnk" href="/blog">Blog</Link>
           <Link className="lnk hide-s" href="/#track">Track</Link>
