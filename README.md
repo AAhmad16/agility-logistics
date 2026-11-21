@@ -1,6 +1,6 @@
 # Agility Logistics
 
-Time-critical delivery platform for Agility Technologies: public website, client portal, driver app (installable on iPhone) and a dispatch board.
+Time-critical delivery platform for Agility Logistics: public website, client portal, driver app (installable on iPhone) and a dispatch board.
 
 **Stack:** Next.js 16 (App Router) on Vercel · Supabase (Postgres, Auth, Realtime, row level security) · Stripe Checkout for invoices.
 

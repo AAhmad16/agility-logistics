@@ -32,7 +32,7 @@ export default async function Home() {
         <div className="wrap nav">
           <Link className="logo" href="/">
             <LogoMark />
-            <span>Agility Technologies<small>Time-critical logistics</small></span>
+            <span>Agility Logistics<small>Time-critical delivery</small></span>
           </Link>
           <div className="links">
             <a className="lnk hide-s" href="#services">Services</a>
@@ -99,7 +99,7 @@ export default async function Home() {
       </section>
 
       <footer className="site">
-        <div className="wrap"><span>Agility Technologies · Schaumburg, Illinois</span><span>Drivers: ask dispatch for an invite</span></div>
+        <div className="wrap"><span>Agility Logistics · Schaumburg, Illinois</span><span>Drivers: ask dispatch for an invite</span></div>
       </footer>
     </>
   );

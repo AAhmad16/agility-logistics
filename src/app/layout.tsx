@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: { default: "Agility Technologies | Time-critical logistics", template: "%s | Agility Technologies" },
+  title: { default: "Agility Logistics | Time-critical delivery", template: "%s | Agility Logistics" },
   description: "Our own drivers, a live map and one invoice, for parts, documents and specimens that cannot wait for tomorrow.",
   appleWebApp: { capable: true, title: "Agility Driver", statusBarStyle: "black-translucent" },
 };
