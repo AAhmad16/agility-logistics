@@ -2,14 +2,17 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getSession, homeFor } from "@/lib/session";
 import type { Loc, Rate } from "@/lib/types";
-import { LATE_CREDIT_PCT, money } from "@/lib/format";
+import { DISPATCH_PHONE, LATE_CREDIT_PCT, money, phoneHref } from "@/lib/format";
+import { submitQuoteRequest } from "./actions";
 import { LogoMark } from "@/components/Logo";
 import { QuoteCard } from "@/components/QuoteCard";
 import { TrackBox } from "@/components/TrackBox";
 import { RouteMap } from "@/components/RouteMap";
 import { DispatchLine } from "@/components/DispatchLine";
+import { CategoryIcon, ServiceArt, type CategoryKind } from "@/components/ServiceArt";
 
-export default async function Home() {
+export default async function Home({ searchParams }: { searchParams: Promise<{ sent?: string; qerror?: string }> }) {
+  const sp = await searchParams;
   const supabase = await createClient();
   const [{ data: hubs }, { data: rates }, session] = await Promise.all([
     supabase.from("locations").select("*").eq("is_hub", true).order("name"),
@@ -23,9 +26,25 @@ export default async function Home() {
   const WHO: Record<string, string> = {
     sprint: "Aircraft-on-ground parts, tooling, urgent documents",
     sameday: "Replenishment, samples, production line shortages",
-    nfo: "Cross-country parts and documents that cannot wait for freight",
+    nfo: "Parts and documents that have to make the next flight",
     stat: "Lab specimens, devices, time-sensitive medical supplies",
   };
+
+  const CATEGORIES: { kind: CategoryKind; title: string; items: string[] }[] = [
+    { kind: "aviation", title: "Aviation and industrial", items: ["Aircraft-on-ground parts", "Tooling and fixtures", "Machine and equipment parts", "Test equipment"] },
+    { kind: "medical", title: "Medical and lab", items: ["Lab specimens", "Devices and instruments", "Time-sensitive supplies", "Paperwork that travels with them"] },
+    { kind: "documents", title: "Documents and legal", items: ["Contracts and filings", "Signed originals", "Sealed envelopes", "Court and permit packets"] },
+    { kind: "production", title: "Production and retail", items: ["Line-down shortages", "Samples and prototypes", "Store replenishment", "Rush orders for customers"] },
+  ];
+  const FAQ: [string, string][] = [
+    ["How do I get a price?", "Use the quote box at the top of this page. Pick the pickup, the delivery, the service and the weight, and the price appears right away. It is the price you pay."],
+    ["How fast will it arrive?", "Each service shows its delivery window, and every booking gets a promised delivery time that you and your recipient can see."],
+    ["What if the driver is late?", `The ${LATE_CREDIT_PCT}% credit comes off your invoice automatically. There is nothing to file.`],
+    ["What can I send?", "Parts, documents, specimens and other packages up to 150 lb. If something is unusual, call dispatch before you book."],
+    ["Where do you deliver?", "Across Chicagoland. The booking form lists our hubs, including Schaumburg, O'Hare, Chicago Loop, Midway, Naperville, Elgin, Gurnee and Joliet. For another address, call or text dispatch."],
+    ["Do I need an account to book?", "Prices are open to everyone. To book, create a free client account. You are invoiced after each delivery on net 15 terms and can pay online."],
+    ["Can the person receiving it follow the delivery?", "Yes. Send them the tracking link from your shipment page. They see the driver on a map and the promised time, with no login."],
+  ];
 
   return (
     <>
@@ -38,6 +57,7 @@ export default async function Home() {
           <div className="links">
             <a className="lnk hide-s" href="#services">Services</a>
             <a className="lnk" href="#track">Track</a>
+            <a className="lnk hide-s" href="#contact">Contact</a>
             {session ? (
               <Link className="btn amber sm" href={homeFor(session.profile.role)}>Open dashboard</Link>
             ) : (
@@ -72,7 +92,46 @@ export default async function Home() {
 
       <TrackBox />
 
-      <section className="band" id="why" style={{ background: "#fff" }}>
+      <section className="band" id="services">
+        <div className="wrap">
+          <h2 className="sec">Four ways to move something fast</h2>
+          <p className="intro">Every job is run by an Agility driver. You choose how fast, and we price it before you book.</p>
+          <div className="cards">
+            {services.map((s) => (
+              <article className="card" key={s.service}>
+                <ServiceArt kind={s.service} />
+                <div className="cbody">
+                  <h3>{s.name}</h3>
+                  <div className="win">{s.window_text}</div>
+                  <p>{s.description}. {WHO[s.service]}.</p>
+                  <div className="cfoot">
+                    <span className="from">from <b>{money(s.base_cents).replace(".00", "")}</b></span>
+                    <a className="btn dark sm" href="#quote">Get a price</a>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="band" id="deliver" style={{ background: "#fff" }}>
+        <div className="wrap">
+          <h2 className="sec">What we carry</h2>
+          <p className="intro">If it is small enough for one driver and cannot wait, we can move it.</p>
+          <div className="deliver">
+            {CATEGORIES.map((c) => (
+              <div key={c.title}>
+                <CategoryIcon kind={c.kind} />
+                <h4>{c.title}</h4>
+                <ul>{c.items.map((i) => <li key={i}>{i}</li>)}</ul>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="band" id="why">
         <div className="wrap">
           <h2 className="sec">Why shippers switch to Agility</h2>
           <div className="why">
@@ -86,22 +145,6 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="band" id="services">
-        <div className="wrap">
-          <h2 className="sec">Four ways to move something fast</h2>
-          <p className="intro">Every job is run by an Agility driver. You choose how fast, and we price it before you book.</p>
-          <div className="svclist">
-            {services.map((s) => (
-              <div className="svcrow" key={s.service}>
-                <div><h3>{s.name}</h3><div className="win">{s.window_text}</div></div>
-                <div>{s.description}. {WHO[s.service]}.</div>
-                <div className="from">from<b>{money(s.base_cents).replace(".00", "")}</b></div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       <section className="band" id="how" style={{ background: "#fff" }}>
         <div className="wrap">
           <h2 className="sec">From booking to signature</h2>
@@ -111,6 +154,56 @@ export default async function Home() {
             <li><h4>Follow</h4><p>Watch the driver on the map as the job moves.</p></li>
             <li><h4>Sign and bill</h4><p>The recipient signs on the phone. The invoice is ready right away.</p></li>
           </ol>
+        </div>
+      </section>
+
+      <section className="band" id="faq">
+        <div className="wrap faqwrap">
+          <h2 className="sec">Questions shippers ask</h2>
+          <div className="faq">
+            {FAQ.map(([q, a]) => (
+              <details key={q}>
+                <summary>{q}</summary>
+                <p>{a}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="band contact" id="contact">
+        <div className="wrap contactgrid">
+          <div>
+            <h2 className="sec">Talk to dispatch</h2>
+            <p className="intro">Tell us what you need to move and where. A person will get back to you.</p>
+            {DISPATCH_PHONE && (
+              <div className="phoneblock">
+                <div className="lbl">Call or text</div>
+                <a className="bigphone" href={`tel:${phoneHref(DISPATCH_PHONE)}`}>{DISPATCH_PHONE}</a>
+                <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 12 }}>
+                  <a className="btn amber" href={`tel:${phoneHref(DISPATCH_PHONE)}`}>Call dispatch</a>
+                  <a className="btn ghost" href={`sms:${phoneHref(DISPATCH_PHONE)}`}>Send a text</a>
+                </div>
+              </div>
+            )}
+            <p className="hint" style={{ marginTop: 18 }}>Agility Logistics · Schaumburg, Illinois</p>
+            <p className="hint">Existing clients and drivers: <Link href="/login" style={{ color: "var(--teal)", fontWeight: 600 }}>sign in</Link>.</p>
+          </div>
+          <form className="quoteform" action={submitQuoteRequest}>
+            <h3>Request a quote</h3>
+            {sp.sent && <div className="alert ok" role="status">Thanks. We received your request and will get back to you.</div>}
+            {sp.qerror && <div className="alert err" role="alert">{sp.qerror}</div>}
+            <div className="field"><label htmlFor="qf-name">Your name</label><input id="qf-name" name="name" autoComplete="name" required maxLength={120} /></div>
+            <div className="field"><label htmlFor="qf-company">Company</label><input id="qf-company" name="company" autoComplete="organization" maxLength={160} /></div>
+            <div className="two">
+              <div className="field"><label htmlFor="qf-email">Email</label><input id="qf-email" name="email" type="email" autoComplete="email" maxLength={200} /></div>
+              <div className="field"><label htmlFor="qf-phone">Phone</label><input id="qf-phone" name="phone" type="tel" autoComplete="tel" maxLength={40} /></div>
+            </div>
+            <div className="field"><label htmlFor="qf-msg">What do you need to move?</label><textarea id="qf-msg" name="message" rows={4} maxLength={1500} placeholder="Pickup, delivery, how fast, how often" /></div>
+            <input className="hp" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" />
+            <p className="hint" style={{ margin: "0 0 10px" }}>Add an email or a phone number so we can reach you.</p>
+            <button className="btn amber block">Send request</button>
+          </form>
         </div>
       </section>
 

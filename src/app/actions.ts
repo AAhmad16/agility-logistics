@@ -105,3 +105,18 @@ export async function assignDriver(formData: FormData) {
   revalidatePath("/admin");
   redirect("/admin");
 }
+
+export async function submitQuoteRequest(formData: FormData) {
+  // Hidden field that real visitors leave empty; bots fill it in.
+  if (text(formData, "website")) redirect("/?sent=1#contact");
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("submit_quote_request", {
+    p_name: text(formData, "name"),
+    p_company: text(formData, "company"),
+    p_email: text(formData, "email"),
+    p_phone: text(formData, "phone"),
+    p_message: text(formData, "message"),
+  });
+  if (error) redirect(`/?qerror=${encodeURIComponent(error.message)}#contact`);
+  redirect("/?sent=1#contact");
+}
