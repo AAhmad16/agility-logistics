@@ -12,6 +12,7 @@ const CHIPS = ["Get a price", "Delivery speeds", "Where do you deliver?", "Track
 
 export function ChatWidget({ rates, hubs }: { rates: Rate[]; hubs: Loc[] }) {
   const [open, setOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
   const [input, setInput] = useState("");
   const [msgs, setMsgs] = useState<Msg[]>([
     { from: "bot", text: "Hi, I'm Agility's automated assistant. I can answer basic questions about prices, delivery times and coverage. What would you like to know?" },
@@ -69,17 +70,53 @@ export function ChatWidget({ rates, hubs }: { rates: Rate[]; hubs: Loc[] }) {
     return { text: "I'm not sure about that one. I can help with prices, delivery speeds, coverage, tracking and booking, or you can reach a person.", actions: talk };
   }
 
-  function send(text: string) {
+  const TAGS: Record<string, Action | "call"> = {
+    quote: { label: "Get a price", href: "#quote" },
+    contact: { label: "Request a quote", href: "#contact" },
+    track: { label: "Go to tracking", href: "#track" },
+    signup: { label: "Create an account", href: "/signup" },
+    services: { label: "See services", href: "#services" },
+    call: "call",
+  };
+
+  // Turn [[tag]] markers from the AI reply into buttons.
+  function parseReply(raw: string): Reply {
+    const actions: Action[] = [];
+    const text = raw.replace(/\[\[(\w+)\]\]/g, (_, tag: string) => {
+      const a = TAGS[tag];
+      if (a === "call") actions.push(...callActions);
+      else if (a) actions.push(a);
+      return "";
+    }).replace(/\s+/g, " ").trim();
+    return { text: text || "Sorry, I could not answer that. Please contact dispatch.", actions: actions.length ? actions : undefined };
+  }
+
+  async function send(text: string) {
     const q = text.trim();
-    if (!q) return;
-    const reply = answer(q);
-    setMsgs((m) => [...m, { from: "me", text: q }, { from: "bot", ...reply }]);
+    if (!q || busy) return;
+    const history = [...msgs, { from: "me" as const, text: q }];
+    setMsgs(history);
     setInput("");
+    setBusy(true);
+    let reply: Reply | null = null;
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ messages: history.map((m) => ({ role: m.from === "me" ? "user" : "assistant", content: m.text })) }),
+      });
+      const data = (await res.json()) as { reply?: string };
+      if (data.reply) reply = parseReply(data.reply);
+    } catch {
+      /* fall through to the built-in answers */
+    }
+    setMsgs((m) => [...m, { from: "bot", ...(reply ?? answer(q)) }]);
+    setBusy(false);
   }
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: "end" });
-  }, [msgs, open]);
+  }, [msgs, open, busy]);
   useEffect(() => {
     if (open) inputRef.current?.focus();
   }, [open]);
@@ -105,16 +142,17 @@ export function ChatWidget({ rates, hubs }: { rates: Rate[]; hubs: Loc[] }) {
                 )}
               </div>
             ))}
+            {busy && <div className="bubble bot typing" aria-label="Typing"><span /><span /><span /></div>}
             <div ref={endRef} />
           </div>
           <div className="chips">
             {CHIPS.map((c) => (
-              <button type="button" key={c} onClick={() => send(c)}>{c}</button>
+              <button type="button" key={c} onClick={() => void send(c)}>{c}</button>
             ))}
           </div>
-          <form className="chatform" onSubmit={(e) => { e.preventDefault(); send(input); }}>
+          <form className="chatform" onSubmit={(e) => { e.preventDefault(); void send(input); }}>
             <input ref={inputRef} value={input} onChange={(e) => setInput(e.target.value)} placeholder="Ask a question" aria-label="Your message" maxLength={300} />
-            <button type="submit" className="btn amber sm">Send</button>
+            <button type="submit" className="btn amber sm" disabled={busy}>Send</button>
           </form>
         </div>
       )}
