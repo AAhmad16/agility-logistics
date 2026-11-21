@@ -6,6 +6,7 @@ import { submitQuoteRequest } from "./actions";
 import { QuoteCard } from "@/components/QuoteCard";
 import { TrackBox } from "@/components/TrackBox";
 import { RouteMap } from "@/components/RouteMap";
+import { OnTheRoad } from "@/components/OnTheRoad";
 import { RoadScene } from "@/components/RoadScene";
 import { SiteNav } from "@/components/SiteNav";
 import { DispatchLine } from "@/components/DispatchLine";
@@ -95,6 +96,8 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ s
           </div>
         </div>
       </section>
+
+      <OnTheRoad />
 
       <section className="band" id="deliver" style={{ background: "#fff" }}>
         <div className="wrap">

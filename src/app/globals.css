@@ -417,3 +417,18 @@ a.rowlink{color:inherit;text-decoration:none;display:block}
   .roadscene .van{left:18%}.roadscene .truck{left:48%}.roadscene .car{left:74%}.roadscene .plane{left:60%}
 }
 @media (max-width:560px){.roadscene{height:140px}.roadscene .skyline{height:84px}}
+
+/* video reel and photos */
+.onroad{background:var(--paper)}
+.reel{position:relative;border-radius:18px;overflow:hidden;background:var(--ink);aspect-ratio:21/9;min-height:260px}
+.reel video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.75}
+.reel::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(13,27,42,.88),rgba(13,27,42,.15) 70%)}
+.reeltext{position:absolute;z-index:1;left:clamp(20px,4vw,48px);bottom:clamp(20px,4vw,44px);max-width:440px;color:#fff}
+.reeltext h2{font:850 clamp(36px,5vw,64px)/.95 var(--display);font-variation-settings:"wdth" 72;margin-bottom:8px}
+.reeltext p{color:#D5E0EA;font-size:17px;margin-bottom:16px}
+.photos{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:16px}
+.photos figure{margin:0;position:relative;border-radius:14px;overflow:hidden;aspect-ratio:3/2;background:var(--ink2)}
+.photos img{width:100%;height:100%;object-fit:cover;display:block}
+.photos figcaption{position:absolute;left:0;right:0;bottom:0;padding:26px 14px 12px;color:#fff;font-weight:600;background:linear-gradient(transparent,rgba(13,27,42,.8))}
+.credit{margin-top:12px;font-size:12px;color:var(--muted)}
+@media (max-width:760px){.reel{aspect-ratio:4/3}.photos{grid-template-columns:1fr}}
