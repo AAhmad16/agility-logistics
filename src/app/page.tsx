@@ -6,6 +6,7 @@ import { submitQuoteRequest } from "./actions";
 import { QuoteCard } from "@/components/QuoteCard";
 import { TrackBox } from "@/components/TrackBox";
 import { RouteMap } from "@/components/RouteMap";
+import { RoadScene } from "@/components/RoadScene";
 import { SiteNav } from "@/components/SiteNav";
 import { DispatchLine } from "@/components/DispatchLine";
 import { CategoryIcon, ServiceArt, type CategoryKind } from "@/components/ServiceArt";
@@ -67,6 +68,8 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ s
           <QuoteCard locations={locations} rates={services} />
         </div>
       </section>
+
+      <RoadScene />
 
       <TrackBox />
 
