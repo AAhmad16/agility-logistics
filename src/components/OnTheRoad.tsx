@@ -2,10 +2,10 @@
 import { useEffect, useRef } from "react";
 
 // Placeholder stock media. To use your own, drop files in /public/media and change these constants.
-const VIDEO = "https://videos.pexels.com/video-files/17899033/17899033-hd_1920_1080_24fps.mp4";
-const POSTER = "https://images.pexels.com/videos/17899033/pexels-photo-17899033.jpeg?auto=compress&cs=tinysrgb&h=627&fit=crop&w=1200";
+const VIDEO = "https://assets.mixkit.co/videos/44621/44621-720.mp4";
+const POSTER = "https://assets.mixkit.co/videos/44621/44621-thumb-720-0.jpg";
 const PHOTOS = [
-  { src: "https://images.unsplash.com/photo-1734903251828-b8d4c0423e56?auto=format&fit=crop&w=900&q=70", alt: "Truck driving along a road beside a hill", cap: "Highway runs" },
+  { src: "https://images.unsplash.com/photo-1688619103602-35c5b27a6619?auto=format&fit=crop&w=900&q=70", alt: "White van driving along a curving road", cap: "Highway runs" },
   { src: "https://images.unsplash.com/photo-1755302731148-8f48773efb89?auto=format&fit=crop&w=900&q=70", alt: "White vans parked on a tree-lined city street", cap: "Van deliveries" },
   { src: "https://images.unsplash.com/photo-1768753025396-bace64edd60d?auto=format&fit=crop&w=900&q=70", alt: "Car driving through a city street at night", cap: "Urgent city runs" },
 ];
@@ -36,7 +36,7 @@ export function OnTheRoad() {
             </figure>
           ))}
         </div>
-        <p className="credit">Placeholder media: photos from Unsplash, video from Pexels.</p>
+        <p className="credit">Placeholder media: photos from Unsplash, video from Mixkit.</p>
       </div>
     </section>
   );
